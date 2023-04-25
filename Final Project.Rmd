@@ -1,0 +1,112 @@
+---
+title: 'Final Project'
+author: "Marcus Ortiz"
+date: "05/19/2022"
+output:
+  pdf_document:
+    includes:
+      in_header: header.tex
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+```{r}
+library(tidyverse)
+library(dplyr)
+library(lm.beta)
+data1<-read.csv("Life Expectancy Data.3.csv")
+data2<-na.omit(data1)
+head(data2)
+data2<-data2 %>% 
+  mutate(status2=case_when(
+    Status=="Developing"~0,
+    Status=="Developed"~1
+  ))
+```
+
+
+```{r}
+mod1<-lm(Life.expectancy.Y.~Adult.Mortality+infant.deaths+Alcohol+percentage.expenditure+BMI+under.five.deaths+Total.expenditure+Diphtheria+HIV.AIDS+Income.composition.of.resources+Schooling+status2+Hepatitis.B+Measles+GDP+Population+thinness..1.19.years+thinness.5.9.years+Polio,data=data2)
+summary(mod1)
+
+```
+
+
+
+
+
+```{r}
+mod2<-lm(Life.expectancy.Y.~Adult.Mortality+infant.deaths+Alcohol+percentage.expenditure+BMI+under.five.deaths+Total.expenditure+Diphtheria+HIV.AIDS+Income.composition.of.resources+Schooling+status2,data=data2)
+summary(mod2)
+
+```
+
+#Ho:beta13=beta14=beta15=beta16=beta17=beta18=beta19=0
+
+#Ha:The null is not true(one of the betas!=0)
+
+```{r}
+anova(mod2,mod1)
+qf(0.80,7,1629)
+qf(0.9,7,1629)
+qf(0.95,7,1629)
+qf(0.975,7,1629)
+qf(0.99,7,1629)
+qf(0.999,7,1629)
+
+```
+
+#Because the F-stat for the anova test between model 1 and model 2 is 1.3222, we fail to reject the null hypothesis for significance level 80% and onward.Therefore we conclude that predictors Hepatitis B, Measles,GDP, Population, thinness 1-19 years, thinness 5-9 years and Polio are statistically insignificant and can be removed from the model.
+
+
+
+
+```{r}
+mod3<-lm(Life.expectancy.Y.~Adult.Mortality+infant.deaths+percentage.expenditure+BMI+under.five.deaths+Diphtheria+HIV.AIDS+Income.composition.of.resources+Schooling,data=data2)
+```
+
+#Ho:beta3=beta7=beta12=0
+
+#Ha:The null is not true(beta3, beta7, or beta1!=0)
+
+
+```{r}
+anova(mod3,mod2)
+qf(0.95,3,1636)
+qf(0.975,3,1636)
+qf(0.99,3,1636)
+qf(0.999,3,1636)
+
+```
+
+#The F-stat for this anova test between model 2 and model 3 is 5.45. Therefore,we fail to reject the null at significance level 99.9%. We can conclude that predictors alcohol, total expenditure, and status are statistically insignificant and thus can be removed from the model.
+
+
+
+```{r}
+summary(mod3)
+confint(mod3)
+
+```
+#beta1<-The head count for adults that have died
+
+
+#beta2<-The head count for infants that have died
+
+#beta3<-The percentage of total expenditure 
+
+#beta4<-The average BMI per person
+
+#beta5<-The head count for kids that have died under the age of 5
+
+#beta6<-The head count for people that have Diphtheria
+
+#beta7<-The percentage of the population that has HIV or AIDS
+
+#beta8<-The relative share of income source expressed as a percentage of total income
+
+#beta9<-The average amount of years of schooling per person
